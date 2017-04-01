@@ -5,7 +5,7 @@ import os
 
 #the directory which contains all the files
 inputdirectory = "./all_newspapers/"
-outputdirectory = "./all_out/"
+outputdirectory = "./debug_out/"
 metadata_filename = 'all_metadata.csv'
 display_every = 100
 
@@ -18,7 +18,11 @@ no_date_count = 0
 #output_file gets raw text data from the
 #metadata is the *actual file object* (actually a csv writer)
 #that can be written to with metadata.writerow(list)
-def parse_file(input_file, output_file, metadata, clean_file_name, no_title_count, no_description_count, no_publisher_count, no_date_count):
+def parse_file(input_file, output_file, metadata, clean_file_name):
+    global no_title_count
+    global no_description_count
+    global no_publisher_count
+    global no_date_count
     soup = BeautifulSoup(open(inputdirectory+input_file), "lxml")
     output = open(outputdirectory+output_file, "w")
     pages = soup.find_all("pagetext")
@@ -27,11 +31,13 @@ def parse_file(input_file, output_file, metadata, clean_file_name, no_title_coun
     if(soup.title.contents):
         title = soup.title.contents[0]
     else:
+        print("missing data: no title in file:", input_file)        
         title = "no-title"
         no_title_count += 1
     if(soup.description.contents):
         description = soup.description.contents[0]
     else:
+        print("missing data: no description in file:", input_file)
         description = "no-description"
         no_description_count += 1
         
@@ -39,11 +45,13 @@ def parse_file(input_file, output_file, metadata, clean_file_name, no_title_coun
     if(publishers[1].contents):
         publisher = publishers[1].contents[0]
     else:
+        print("missing data: no publisher in file:", input_file)        
         publisher = "no-publisher"
         no_publisher_count += 1
     if(soup.date.contents):    
         date = soup.date.contents[0]
     else:
+        print("missing data: no date in file:", input_file)        
         date = "no-date"
         no_date_count += 1
     metadata.writerow([clean_file_name, title, description, publisher, date])
@@ -61,7 +69,7 @@ for filename in os.listdir(inputdirectory):
     if(counter % display_every == 0):
         print("Processed", counter, "files")
     id = filename.split('.')[0]
-    parse_file(filename, id + "_raw.txt", metadata, id+".txt", no_title_count, no_description_count, no_publisher_count, no_date_count)    
+    parse_file(filename, id + "_raw.txt", metadata, id+".txt")    
 
     counter += 1
 print(no_title_count, "titles were missing from the data set")
