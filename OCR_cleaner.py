@@ -18,10 +18,10 @@ import operator
 #outputPath = "./outputFiles/"
 #dictName = "./testdict.txt"
 
-inputPath = "./testFiles/"
-outputPath = "./testOutputFiles/"
-dictName = "./testdict.txt"
-missedDictName = "./missedDict.txt"
+inputPath = "./denison_out/"
+outputPath = "./denison_clean/"
+dictName = "./words.txt"
+missedDictName = "./denisonMissed.txt"
 
 missedWords = {}
 missingWord = 0
@@ -70,6 +70,7 @@ def cleanFile(fileName):
 	file = open(outputPath+Newfile,"w+")
 	for line in inputFile:
 		for word in line.split():
+			word = word.lower()
 			totalWord = totalWord + 1
 			if word in dictionary:
 				file.write(word+" ")
