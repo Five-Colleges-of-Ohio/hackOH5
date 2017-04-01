@@ -6,25 +6,46 @@ import os
 #the directory which contains all the files
 inputdirectory = "./all_newspapers/"
 outputdirectory = "./all_out/"
-metadata_filename = 'test_metadata.csv'
+metadata_filename = 'all_metadata.csv'
 display_every = 100
+
+no_title_count = 0
+no_description_count = 0
+no_publisher_count = 0
+no_date_count = 0
 
 #input_file has XML data
 #output_file gets raw text data from the
 #metadata is the *actual file object* (actually a csv writer)
 #that can be written to with metadata.writerow(list)
-def parse_file(input_file, output_file, metadata, clean_file_name):
+def parse_file(input_file, output_file, metadata, clean_file_name, no_title_count, no_description_count, no_publisher_count, no_date_count):
     soup = BeautifulSoup(open(inputdirectory+input_file), "lxml")
     output = open(outputdirectory+output_file, "w")
     pages = soup.find_all("pagetext")
     for page in pages:
         output.write(str(page.contents[0]))
+    if(soup.title.contents):
+        title = soup.title.contents[0]
+    else:
+        title = "no-title"
+        no_title_count += 1
+    if(soup.description.contents):
+        description = soup.description.contents[0]
+    else:
+        description = "no-description"
+        no_description_count += 1
         
-    title = soup.title.contents[0]
-    description = soup.description.contents[0]
     publishers = soup.find_all("publisher")
-    publisher = publishers[1].contents[0]
-    date = soup.date.contents[0]
+    if(publishers[1].contents):
+        publisher = publishers[1].contents[0]
+    else:
+        publisher = "no-publisher"
+        no_publisher_count += 1
+    if(soup.date.contents):    
+        date = soup.date.contents[0]
+    else:
+        date = "no-date"
+        no_date_count += 1
     metadata.writerow([clean_file_name, title, description, publisher, date])
 
     
@@ -40,6 +61,10 @@ for filename in os.listdir(inputdirectory):
     if(counter % display_every == 0):
         print("Processed", counter, "files")
     id = filename.split('.')[0]
-    parse_file(filename, id + "_raw.txt", metadata, id+".txt")    
+    parse_file(filename, id + "_raw.txt", metadata, id+".txt", no_title_count, no_description_count, no_publisher_count, no_date_count)    
 
     counter += 1
+print(no_title_count, "titles were missing from the data set")
+print(no_description_count, "descriptions were missing from the data set")
+print(no_publisher_count, "publishers were missing from the data set")
+print(no_date_count, "dates were missing from the data set")
